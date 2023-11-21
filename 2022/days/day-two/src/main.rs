@@ -10,3 +10,20 @@ fn main() {
     }
     println!("{:?}", trimmed_lines)
 }
+
+enum RPS {
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3,
+}
+
+impl RPS {
+    fn into_rps(char: char) -> Option<RPS> {
+        match char {
+            'A' | 'X' => Some(RPS::Rock),
+            'B' | 'Y' => Some(RPS::Paper),
+            'C' | 'Z' => Some(RPS::Scissors),
+            _ => None,
+        }
+    }
+}
