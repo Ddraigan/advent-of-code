@@ -25,7 +25,7 @@ fn play_match(rps_strategy: Vec<(RPS, RPS)>) -> usize {
     for game in rps_strategy {
         points += get_winner(&game.0, &game.1);
         let x = game.1 as usize;
-        println!("{x}");
+        // println!("{x}");
         points += x
     }
 
@@ -48,7 +48,7 @@ fn get_winner(opponent: &RPS, player: &RPS) -> usize {
     } else {
         3
     };
-    println!("{:#?}", x);
+    // println!("{:#?}", x);
     x
 }
 
