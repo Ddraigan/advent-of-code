@@ -18,7 +18,7 @@ fn main() {
 }
 
 fn get_puzzle_input() -> String {
-    fs::read_to_string("../../../inputs/day_one.txt").unwrap()
+    fs::read_to_string("src/day_one_input.txt").unwrap()
 }
 
 fn find_three_elves_with_most_calories(list: Vec<usize>) -> Vec<usize> {
