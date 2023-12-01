@@ -43,7 +43,7 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
         let mut nums_in_line: Vec<(usize, usize)> = vec![];
         let i = line.find(|c: char| c.is_ascii_digit()).unwrap();
         let v = &line.chars().nth(i).unwrap();
-        nums_in_line.push((i, *v as usize));
+        nums_in_line.push((i, *v as usize - 48));
 
         for (word, number) in NUMBERWORDS {
             match line.find(word) {
@@ -52,14 +52,16 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
             }
         }
 
-        let i = line.rfind(|c: char| c.is_ascii_digit()).unwrap();
-        let v = &line.chars().nth(i).unwrap();
-        nums_in_line.push((i, *v as usize));
+        let ind = line.rfind(|c: char| c.is_ascii_digit()).unwrap();
+        let val = &line.chars().nth(ind).unwrap();
+        nums_in_line.push((ind, *val as usize - 48));
 
         nums_in_line.sort_by_key(|k| k.0);
 
-        let first_num = nums_in_line[0].0.to_string();
-        let last_num = nums_in_line.last().unwrap().0.to_string();
+        print!("{:?}", nums_in_line);
+
+        let first_num = nums_in_line[0].1.to_string();
+        let last_num = nums_in_line.last().unwrap().1.to_string();
 
         let number = format!("{}{}", first_num, last_num)
             .parse()
@@ -67,6 +69,7 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
 
         numbers.push(number);
     }
+    println!("{:?}", numbers);
 
     numbers
 }
