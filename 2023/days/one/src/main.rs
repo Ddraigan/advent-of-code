@@ -59,9 +59,9 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
             }
         }
 
-        let ind = line.rfind(|c: char| c.is_ascii_digit()).unwrap();
-        let val = &line.chars().nth(ind).unwrap();
-        nums_in_line.push((ind, *val as usize - 48));
+        let i = line.rfind(|c: char| c.is_ascii_digit()).unwrap();
+        let v = &line.chars().nth(i).unwrap();
+        nums_in_line.push((i, *v as usize - 48));
 
         nums_in_line.sort_by_key(|k| k.0);
 
