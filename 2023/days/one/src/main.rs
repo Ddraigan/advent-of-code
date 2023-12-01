@@ -27,12 +27,10 @@ fn parse_numbers(lines: Vec<String>) -> Vec<usize> {
             }
         });
 
-        let last_num = match nums_in_line.last() {
-            Some(num) => num.to_string(),
-            None => String::from(""),
-        };
+        let first_num = nums_in_line[0];
+        let last_num = nums_in_line.last().unwrap_or(&'\0').to_owned();
 
-        let number: usize = String::from(nums_in_line[0].to_string() + &last_num)
+        let number: usize = format!("{}{}", first_num, last_num)
             .parse()
             .expect("Valid Number");
 
