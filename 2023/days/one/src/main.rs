@@ -52,6 +52,13 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
             }
         }
 
+        for (word, number) in NUMBERWORDS {
+            match line.rfind(word) {
+                Some(i) => nums_in_line.push((i, number)),
+                None => {}
+            }
+        }
+
         let ind = line.rfind(|c: char| c.is_ascii_digit()).unwrap();
         let val = &line.chars().nth(ind).unwrap();
         nums_in_line.push((ind, *val as usize - 48));
@@ -65,9 +72,9 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
             .parse()
             .expect("Valid Number");
 
+        println!("{}: {}", line, number);
         numbers.push(number);
     }
-    println!("{:?}", numbers);
 
     numbers
 }
