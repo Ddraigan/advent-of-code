@@ -58,8 +58,6 @@ fn part_two_parse_numbers(lines: &Vec<String>) -> Vec<usize> {
 
         nums_in_line.sort_by_key(|k| k.0);
 
-        print!("{:?}", nums_in_line);
-
         let first_num = nums_in_line[0].1.to_string();
         let last_num = nums_in_line.last().unwrap().1.to_string();
 
