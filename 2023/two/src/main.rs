@@ -9,7 +9,7 @@ fn main() {
 
     let record = Record::new(lines);
 
-    println!("{}", record.possible_games())
+    println!("{:#?}", record)
 }
 
 #[derive(Debug)]
@@ -24,27 +24,9 @@ impl Record {
         }
         Record(record)
     }
-
-    fn possible_games(&self) -> usize {
-        let mut game_ids = vec![];
-
-        for game in self.0.iter() {
-            for pull in &game.pulls {
-                let mut pull_amounts = vec![];
-
-                for cube in &pull.cubes {
-                    if cube.amount <= cube.colour.max() {
-                        println!("{:?} - {:?}", game.game_id, cube.amount);
-                        pull_amounts.push(pull)
-                    }
-                }
-            }
-        }
-
-        game_ids.iter().sum()
-    }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct CubeGame {
     game_id: u8,
@@ -60,33 +42,25 @@ impl CubeGame {
     }
 
     fn parse_game_id(line: &str) -> u8 {
-        let id: String = line
-            .chars()
+        line.chars()
             .into_iter()
             .take_while(|c| *c != ':')
             .filter(|c| c.is_ascii_digit())
-            .collect();
-
-        id.parse().expect("Parsable number")
+            .collect::<String>()
+            .parse()
+            .expect("Parsable number")
     }
 
     fn parse_pulls(line: &str) -> Vec<Pull> {
-        let pull = line
-            .split(|c| c == ':' || c == ';')
+        line.split(|c| c == ':' || c == ';')
             .skip(1)
             .map(|l| l.trim())
-            .collect::<Vec<&str>>();
-
-        let mut pulls = vec![];
-
-        for p in pull {
-            pulls.push(Pull::new(p))
-        }
-
-        pulls
+            .map(|item| Pull::new(item))
+            .collect()
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct Pull {
     cubes: Vec<Cube>,
@@ -98,19 +72,26 @@ impl Pull {
         Self { cubes }
     }
 
-    fn parse_cubes(pull: &str) -> Vec<Cube> {
-        let cube = pull.split(',').map(|e| e.trim()).collect::<Vec<&str>>();
-
-        let mut cubes = vec![];
-
-        for c in cube {
-            cubes.push(Cube::new(c))
+    fn is_max(&self) -> bool {
+        let mut is_max = false;
+        for cube in &self.cubes {
+            if cube.is_max() {
+                is_max = true;
+                break;
+            }
         }
+        is_max
+    }
 
-        cubes
+    fn parse_cubes(pull: &str) -> Vec<Cube> {
+        pull.split(',')
+            .map(|e| e.trim())
+            .map(|cube| Cube::new(cube))
+            .collect()
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct Cube {
     amount: u8,
@@ -125,13 +106,21 @@ impl Cube {
         Self { amount, colour }
     }
 
-    fn parse_amount(data: &str) -> u8 {
-        let amount = data
-            .chars()
-            .find(|c| c.is_ascii_digit())
-            .expect("Value to be present");
+    fn is_max(&self) -> bool {
+        if self.amount > self.colour.max() {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-        amount.to_string().parse().expect("Parsable number")
+    fn parse_amount(data: &str) -> u8 {
+        data.chars()
+            .find(|c| c.is_ascii_digit())
+            .expect("Value to be present")
+            .to_string()
+            .parse()
+            .expect("Parsable number")
     }
 
     fn parse_colour(data: &str) -> Colour {
