@@ -10,69 +10,59 @@ fn main() {
 
     let record = Record::new(lines);
 
-    println!("{:?}", record.0.last());
-    println!("{:?}", record.possible_games())
+    println!("{:?}", record.possible_games());
 }
 
 #[derive(Debug)]
-struct Record(Vec<CubeGame>);
+struct Record {
+    games: Vec<CubeGame>,
+}
 
 impl Record {
     fn new(lines: Vec<String>) -> Self {
-        let mut record = vec![];
+        let mut games = vec![];
 
         for line in lines {
-            record.push(CubeGame::new(&line))
+            games.push(CubeGame::new(&line))
         }
-        Record(record)
+
+        Self { games }
     }
 
     fn possible_games(&self) -> usize {
         let mut possible_game_ids = vec![];
 
-        for game in &self.0 {
+        for game in &self.games {
             if !game.is_max() {
+                // println!("{:?}", game.game_id);
                 possible_game_ids.push(game.game_id as usize)
             }
         }
 
         possible_game_ids.iter().sum()
     }
-
-    // fn is_max(&self) -> bool {
-    //     let mut is_max = false;
-    //
-    //     for game in &self.0 {
-    //         if game.is_max() {
-    //             is_max = true;
-    //             break;
-    //         }
-    //     }
-    //
-    //     is_max
-    // }
 }
 
 #[allow(dead_code)]
 #[derive(Debug)]
 struct CubeGame {
     game_id: u8,
-    pulls: Vec<Pull>,
+    rounds: Vec<Round>,
 }
 
 impl CubeGame {
     fn new(line: &str) -> Self {
         let game_id = Self::parse_game_id(line);
-        let pulls = Self::parse_pulls(line);
+        let rounds = Self::parse_rounds(line);
 
-        Self { game_id, pulls }
+        Self { game_id, rounds }
     }
 
     fn is_max(&self) -> bool {
         let mut is_max = false;
 
-        for pull in &self.pulls {
-            if pull.is_max() {
+        for round in &self.rounds {
+            if round.is_max() {
                 is_max = true;
                 break;
             }
@@ -91,24 +81,24 @@ impl CubeGame {
             .expect("Parsable number")
     }
 
-    fn parse_pulls(line: &str) -> Vec<Pull> {
+    fn parse_rounds(line: &str) -> Vec<Round> {
         line.split(|c| c == ':' || c == ';')
             .skip(1)
             .map(|l| l.trim())
-            .map(|item| Pull::new(item))
+            .map(|item| Round::new(item))
             .collect()
     }
 }
 
 #[allow(dead_code)]
 #[derive(Debug)]
-struct Pull {
+struct Round {
     cubes: Vec<Cube>,
 }
 
-impl Pull {
-    fn new(pull: &str) -> Self {
-        let cubes = Self::parse_cubes(pull);
+impl Round {
+    fn new(round: &str) -> Self {
+        let cubes = Self::parse_cubes(round);
         Self { cubes }
     }
 
@@ -125,8 +115,9 @@ impl Pull {
         is_max
     }
 
-    fn parse_cubes(pull: &str) -> Vec<Cube> {
-        pull.split(',')
+    fn parse_cubes(round: &str) -> Vec<Cube> {
+        round
+            .split(',')
             .map(|e| e.trim())
             .map(|cube| Cube::new(cube))
             .collect()
@@ -157,18 +148,13 @@ impl Cube {
     }
 
     fn parse_amount(data: &str) -> u8 {
-        data.chars()
-            .find(|c| c.is_ascii_digit())
-            .expect("Value to be present")
-            .to_string()
-            .parse()
-            .expect("Parsable number")
+        let data: Vec<&str> = data.split(' ').collect();
+        data[0].parse().expect("Parsable number")
     }
 
     fn parse_colour(data: &str) -> Colour {
         let data: Vec<&str> = data.split(' ').collect();
-        let colour = data[1].try_into().expect("Valid colour (red, blue, green)");
-        colour
+        data[1].try_into().expect("Valid colour (red, blue, green)")
     }
 }
 
@@ -181,7 +167,7 @@ enum Colour {
 
 impl Colour {
     fn max(&self) -> u8 {
-        match self {
+        match *self {
             Colour::Red => 12,
             Colour::Blue => 14,
             Colour::Green => 13,
@@ -209,14 +195,14 @@ fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
 }
 
 #[test]
-fn parse_pulls_test() {
+fn parse_rounds_test() {
     let lines = lines_from_file("src/input.txt").unwrap();
     for line in lines {
-        let pull = line
+        let round = line
             .split(|c| c == ':' || c == ';')
             .skip(1)
             .map(|l| l.trim())
             .collect::<Vec<&str>>();
-        println!("{:?}", pull)
+        println!("{:?}", round)
     }
 }
