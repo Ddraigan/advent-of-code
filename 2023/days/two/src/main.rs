@@ -21,8 +21,8 @@ struct CubeGame {
 
 impl CubeGame {
     fn new(line: &str) -> Self {
-        let game_id = CubeGame::parse_game_id(line);
-        let pulls = CubeGame::parse_pulls(line);
+        let game_id = Self::parse_game_id(line);
+        let pulls = Self::parse_pulls(line);
 
         Self { game_id, pulls }
     }
@@ -47,8 +47,8 @@ impl CubeGame {
 
         let mut pulls = vec![];
 
-        for item in pull {
-            pulls.push(Pull::new(item))
+        for p in pull {
+            pulls.push(Pull::new(p))
         }
 
         pulls
@@ -60,9 +60,21 @@ struct Pull {
 }
 
 impl Pull {
-    fn new(line: &str) -> Self {
-        let cubes = parse_cubes(line);
+    fn new(pull: &str) -> Self {
+        let cubes = Self::parse_cubes(pull);
         Self { cubes }
+    }
+
+    fn parse_cubes(pull: &str) -> Vec<Cube> {
+        let cube = pull.split(',').map(|e| e.trim()).collect::<Vec<&str>>();
+
+        let mut cubes = vec![];
+
+        for c in cube {
+            cubes.push(Cube::new(c))
+        }
+
+        cubes
     }
 }
 
@@ -72,10 +84,26 @@ struct Cube {
 }
 
 impl Cube {
-    fn new(amount: u8, colour: &str) -> Self {
-        let colour = colour.try_into().expect("Valid colour option");
+    fn new(data: &str) -> Self {
+        let amount = Self::parse_amount(data);
+        let colour = Self::parse_colour(data);
 
         Self { amount, colour }
+    }
+
+    fn parse_amount(data: &str) -> u8 {
+        let amount = data
+            .chars()
+            .find(|c| c.is_ascii_digit())
+            .expect("Value to be present");
+
+        amount.to_string().parse().expect("Parsable number")
+    }
+
+    fn parse_colour(data: &str) -> Colour {
+        let data: Vec<&str> = data.split(' ').collect();
+        let colour = data[1].try_into().expect("Valid colour (red, blue, green)");
+        colour
     }
 }
 
@@ -87,6 +115,8 @@ enum Colour {
 }
 
 impl Colour {
+    const COLOURS: [&str; 3] = ["red", "blue", "green"];
+
     fn value(&self) -> &str {
         match self {
             Colour::Red => "red",
