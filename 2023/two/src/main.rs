@@ -8,12 +8,25 @@ fn main() {
     let lines = lines_from_file("src/input.txt").expect("Path to have a readable file");
     println!("{:?}", lines);
 
-    // let record = Record::new(&lines);
-    // println!("{:?}", record)
+    let record = Record::new(lines);
+    println!("{:?}", record)
 }
 
+#[derive(Debug)]
 struct Record(Vec<CubeGame>);
 
+impl Record {
+    fn new(lines: Vec<String>) -> Self {
+        let mut record = vec![];
+
+        for line in lines {
+            record.push(CubeGame::new(&line))
+        }
+        Record(record)
+    }
+}
+
+#[derive(Debug)]
 struct CubeGame {
     game_id: u8,
     pulls: Vec<Pull>,
@@ -55,6 +68,7 @@ impl CubeGame {
     }
 }
 
+#[derive(Debug)]
 struct Pull {
     cubes: Vec<Cube>,
 }
@@ -78,6 +92,7 @@ impl Pull {
     }
 }
 
+#[derive(Debug)]
 struct Cube {
     amount: u8,
     colour: Colour,
@@ -144,15 +159,6 @@ fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
     let buf = BufReader::new(file);
     buf.lines().collect()
 }
-
-// #[test]
-// fn parse_game_id_test() {
-//     let lines = lines_from_file("src/input.txt").unwrap();
-//     for line in lines {
-//         let id = parse_game_id(&line);
-//         println!("{}", id)
-//     }
-// }
 
 #[test]
 fn parse_pulls_test() {
