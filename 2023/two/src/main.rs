@@ -6,7 +6,6 @@ use std::{
 
 fn main() {
     let lines = lines_from_file("src/input.txt").expect("Path to have a readable file");
-    println!("{:?}", lines);
 
     let record = Record::new(lines);
 
@@ -29,14 +28,17 @@ impl Record {
     fn possible_games(&self) -> usize {
         let mut game_ids = vec![];
 
-        for game in &self.0 {
-            game.pulls.iter().for_each(|pull| {
-                pull.cubes.iter().for_each(|cube| {
+        for game in self.0.iter() {
+            for pull in &game.pulls {
+                let mut pull_amounts = vec![];
+
+                for cube in &pull.cubes {
                     if cube.amount <= cube.colour.max() {
-                        game_ids.push(game.game_id as usize)
+                        println!("{:?} - {:?}", game.game_id, cube.amount);
+                        pull_amounts.push(pull)
                     }
-                })
-            });
+                }
+            }
         }
 
         game_ids.iter().sum()
@@ -147,16 +149,6 @@ enum Colour {
 }
 
 impl Colour {
-    const COLOURS: [&str; 3] = ["red", "blue", "green"];
-
-    fn value(&self) -> &str {
-        match self {
-            Colour::Red => "red",
-            Colour::Blue => "blue",
-            Colour::Green => "green",
-        }
-    }
-
     fn max(&self) -> u8 {
         match self {
             Colour::Red => 12,
