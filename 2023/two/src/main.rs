@@ -193,16 +193,3 @@ fn lines_from_file(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
     let buf = BufReader::new(file);
     buf.lines().collect()
 }
-
-#[test]
-fn parse_rounds_test() {
-    let lines = lines_from_file("src/input.txt").unwrap();
-    for line in lines {
-        let round = line
-            .split(|c| c == ':' || c == ';')
-            .skip(1)
-            .map(|l| l.trim())
-            .collect::<Vec<&str>>();
-        println!("{:?}", round)
-    }
-}
