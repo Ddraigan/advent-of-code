@@ -25,16 +25,6 @@ impl Record {
     }
 
     fn possible_games(&self) -> u32 {
-        // let mut possible_game_ids = vec![];
-        //
-        // for game in &self.games {
-        //     if !game.is_max() {
-        //         // println!("{:?}", game.game_id);
-        //         possible_game_ids.push(game.game_id as usize)
-        //     }
-        // }
-        //
-        // possible_game_ids.iter().sum()
         self.games
             .iter()
             .filter(|game| !game.is_max())
@@ -57,16 +47,7 @@ impl CubeGame {
     }
 
     fn is_max(&self) -> bool {
-        let mut is_max = false;
-
-        for round in &self.rounds {
-            if round.is_max() {
-                is_max = true;
-                break;
-            }
-        }
-
-        is_max
+        self.rounds.iter().any(|round| round.is_max())
     }
 
     fn parse_game_id(line: &str) -> u8 {
@@ -99,16 +80,7 @@ impl Round {
     }
 
     fn is_max(&self) -> bool {
-        let mut is_max = false;
-
-        for cube in &self.cubes {
-            if cube.is_max() {
-                is_max = true;
-                break;
-            }
-        }
-
-        is_max
+        self.cubes.iter().any(|cube| cube.is_max())
     }
 
     fn parse_cubes(round: &str) -> Vec<Cube> {
