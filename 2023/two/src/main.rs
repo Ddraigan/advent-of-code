@@ -2,7 +2,6 @@ use std::{
     fs::File,
     io::{self, BufRead, BufReader},
     path::Path,
-    vec,
 };
 
 fn main() {
@@ -25,17 +24,21 @@ impl Record {
         Self { games }
     }
 
-    fn possible_games(&self) -> usize {
-        let mut possible_game_ids = vec![];
-
-        for game in &self.games {
-            if !game.is_max() {
-                // println!("{:?}", game.game_id);
-                possible_game_ids.push(game.game_id as usize)
-            }
-        }
-
-        possible_game_ids.iter().sum()
+    fn possible_games(&self) -> u32 {
+        // let mut possible_game_ids = vec![];
+        //
+        // for game in &self.games {
+        //     if !game.is_max() {
+        //         // println!("{:?}", game.game_id);
+        //         possible_game_ids.push(game.game_id as usize)
+        //     }
+        // }
+        //
+        // possible_game_ids.iter().sum()
+        self.games
+            .iter()
+            .filter(|game| !game.is_max())
+            .fold(0, |acc, x| acc + x.game_id as u32)
     }
 }
 
