@@ -20,11 +20,7 @@ struct Record {
 
 impl Record {
     fn new(lines: Vec<String>) -> Self {
-        let mut games = vec![];
-
-        for line in lines {
-            games.push(CubeGame::new(&line))
-        }
+        let games = lines.iter().map(|line| CubeGame::new(&line)).collect();
 
         Self { games }
     }
@@ -43,7 +39,6 @@ impl Record {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 struct CubeGame {
     game_id: u8,
@@ -84,13 +79,11 @@ impl CubeGame {
     fn parse_rounds(line: &str) -> Vec<Round> {
         line.split(|c| c == ':' || c == ';')
             .skip(1)
-            .map(|l| l.trim())
-            .map(|item| Round::new(item))
+            .map(|item| Round::new(item.trim()))
             .collect()
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 struct Round {
     cubes: Vec<Cube>,
@@ -118,13 +111,11 @@ impl Round {
     fn parse_cubes(round: &str) -> Vec<Cube> {
         round
             .split(',')
-            .map(|e| e.trim())
-            .map(|cube| Cube::new(cube))
+            .map(|cube| Cube::new(cube.trim()))
             .collect()
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 struct Cube {
     amount: u8,
