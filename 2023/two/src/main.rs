@@ -2,6 +2,7 @@ use std::{
     fs::File,
     io::{self, BufRead, BufReader},
     path::Path,
+    vec,
 };
 
 fn main() {
@@ -9,7 +10,8 @@ fn main() {
 
     let record = Record::new(lines);
 
-    println!("{:#?}", record)
+    println!("{:?}", record.0.last());
+    println!("{:?}", record.possible_games())
 }
 
 #[derive(Debug)]
@@ -24,6 +26,31 @@ impl Record {
         }
         Record(record)
     }
+
+    fn possible_games(&self) -> usize {
+        let mut possible_game_ids = vec![];
+
+        for game in &self.0 {
+            if !game.is_max() {
+                possible_game_ids.push(game.game_id as usize)
+            }
+        }
+
+        possible_game_ids.iter().sum()
+    }
+
+    // fn is_max(&self) -> bool {
+    //     let mut is_max = false;
+    //
+    //     for game in &self.0 {
+    //         if game.is_max() {
+    //             is_max = true;
+    //             break;
+    //         }
+    //     }
+    //
+    //     is_max
+    // }
 }
 
 #[allow(dead_code)]
@@ -39,6 +66,19 @@ impl CubeGame {
         let pulls = Self::parse_pulls(line);
 
         Self { game_id, pulls }
+    }
+
+    fn is_max(&self) -> bool {
+        let mut is_max = false;
+
+        for pull in &self.pulls {
+            if pull.is_max() {
+                is_max = true;
+                break;
+            }
+        }
+
+        is_max
     }
 
     fn parse_game_id(line: &str) -> u8 {
@@ -74,12 +114,14 @@ impl Pull {
 
     fn is_max(&self) -> bool {
         let mut is_max = false;
+
         for cube in &self.cubes {
             if cube.is_max() {
                 is_max = true;
                 break;
             }
         }
+
         is_max
     }
 
