@@ -9,7 +9,8 @@ fn main() {
     println!("{:?}", lines);
 
     let record = Record::new(lines);
-    println!("{:?}", record)
+
+    println!("{}", record.possible_games())
 }
 
 #[derive(Debug)]
@@ -23,6 +24,22 @@ impl Record {
             record.push(CubeGame::new(&line))
         }
         Record(record)
+    }
+
+    fn possible_games(&self) -> usize {
+        let mut game_ids = vec![];
+
+        for game in &self.0 {
+            game.pulls.iter().for_each(|pull| {
+                pull.cubes.iter().for_each(|cube| {
+                    if cube.amount <= cube.colour.max() {
+                        game_ids.push(game.game_id as usize)
+                    }
+                })
+            });
+        }
+
+        game_ids.iter().sum()
     }
 }
 
@@ -137,6 +154,14 @@ impl Colour {
             Colour::Red => "red",
             Colour::Blue => "blue",
             Colour::Green => "green",
+        }
+    }
+
+    fn max(&self) -> u8 {
+        match self {
+            Colour::Red => 12,
+            Colour::Blue => 14,
+            Colour::Green => 13,
         }
     }
 }
