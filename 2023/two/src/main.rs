@@ -46,6 +46,33 @@ impl CubeGame {
         Self { game_id, rounds }
     }
 
+    fn minimum(&self) {
+        let 
+
+
+        for round in &self.rounds {
+            let red: Vec<&Cube> = round
+                .cubes
+                .iter()
+                .take_while(|cube| cube.colour == Colour::Red)
+                .collect();
+
+            let green: Vec<&Cube> = round
+                .cubes
+                .iter()
+                .take_while(|cube| cube.colour == Colour::Green)
+                .collect();
+
+            let blue: Vec<&Cube> = round
+                .cubes
+                .iter()
+                .take_while(|cube| cube.colour == Colour::Blue)
+                .collect();
+
+
+        }
+    }
+
     fn is_max(&self) -> bool {
         self.rounds.iter().any(|round| round.is_max())
     }
@@ -124,7 +151,7 @@ impl Cube {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum Colour {
     Red,
     Blue,
