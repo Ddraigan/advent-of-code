@@ -90,18 +90,6 @@ impl CubeGame {
             .collect()
     }
 
-    // fn largest_cubes(&self, colour: &Colour) -> Vec<&Cube> {
-    //     let mut cubes: Vec<&Cube> = vec![];
-    //
-    //     for round in &self.rounds {
-    //         if round.largest_cube(colour).is_some() {
-    //             cubes.push(round.largest_cube(colour).unwrap())
-    //         }
-    //     }
-    //
-    //     cubes
-    // }
-
     fn is_max(&self) -> bool {
         self.rounds.iter().any(|round| round.is_max())
     }
@@ -135,17 +123,6 @@ impl Round {
         Self { cubes }
     }
 
-    // fn largest_cube(&self, colour: &Colour) -> Option<&Cube> {
-    //     for cube in &self.cubes {
-    //         if cube.colour == *colour {
-    //             return Some(cube);
-    //         } else {
-    //             return None;
-    //         }
-    //     }
-    //     None
-    // }
-
     fn is_max(&self) -> bool {
         self.cubes.iter().any(|cube| cube.is_max())
     }
@@ -165,9 +142,9 @@ struct Cube {
 }
 
 impl Cube {
-    fn new(data: &str) -> Self {
-        let amount = Self::parse_amount(data);
-        let colour = Self::parse_colour(data);
+    fn new(cube_info: &str) -> Self {
+        let amount = Self::parse_amount(cube_info);
+        let colour = Self::parse_colour(cube_info);
 
         Self { amount, colour }
     }
@@ -180,13 +157,13 @@ impl Cube {
         }
     }
 
-    fn parse_amount(data: &str) -> u8 {
-        let data: Vec<&str> = data.split(' ').collect();
+    fn parse_amount(cube_info: &str) -> u8 {
+        let data: Vec<&str> = cube_info.split(' ').collect();
         data[0].parse().expect("Parsable number")
     }
 
-    fn parse_colour(data: &str) -> Colour {
-        let data: Vec<&str> = data.split(' ').collect();
+    fn parse_colour(cube_info: &str) -> Colour {
+        let data: Vec<&str> = cube_info.split(' ').collect();
         data[1].try_into().expect("Valid colour (red, blue, green)")
     }
 }
