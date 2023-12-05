@@ -11,9 +11,21 @@ fn main() {
 
     println!("{:?}", record.possible_games());
 
+    let mut sum_of_powers = vec![];
+
     for game in record.games {
-        println!("{:?}", game.join_rounds());
+        let big_round = game.join_rounds();
+        let largest_each_round = CubeGame::largest_cubes(big_round);
+        // println!("{} - {:?}", game.game_id, largest_each_round);
+
+        let power: usize = largest_each_round[0] as usize
+            * largest_each_round[1] as usize
+            * largest_each_round[2] as usize;
+
+        sum_of_powers.push(power)
     }
+
+    println!("{}", sum_of_powers.iter().sum::<usize>())
 }
 
 #[derive(Debug)]
@@ -50,11 +62,29 @@ impl CubeGame {
         Self { game_id, rounds }
     }
 
+    fn largest_cubes(cubes: Vec<&Cube>) -> Vec<u8> {
+        let mut largest = vec![];
+
+        for colour in Colour::COLOURS {
+            largest.push(Self::largest_cube(&cubes, colour).expect("Tester"))
+        }
+
+        largest
+    }
+
+    fn largest_cube(cubes: &Vec<&Cube>, colour: Colour) -> Option<u8> {
+        cubes
+            .iter()
+            .filter(|cube| cube.colour == colour)
+            .map(|cube| cube.amount)
+            .into_iter()
+            .max()
+    }
+
     fn join_rounds(&self) -> Vec<&Cube> {
         self.rounds
             .iter()
             .map(|round| &round.cubes)
-            .collect::<Vec<&Vec<Cube>>>()
             .into_iter()
             .flatten()
             .collect()
@@ -164,16 +194,18 @@ impl Cube {
 #[derive(Debug, PartialEq)]
 enum Colour {
     Red,
-    Blue,
     Green,
+    Blue,
 }
 
 impl Colour {
+    const COLOURS: [Colour; 3] = [Colour::Red, Colour::Green, Colour::Blue];
+
     fn max(&self) -> u8 {
         match *self {
             Colour::Red => 12,
-            Colour::Blue => 14,
             Colour::Green => 13,
+            Colour::Blue => 14,
         }
     }
 }
@@ -184,8 +216,8 @@ impl TryFrom<&str> for Colour {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "red" => Ok(Colour::Red),
-            "blue" => Ok(Colour::Blue),
             "green" => Ok(Colour::Green),
+            "blue" => Ok(Colour::Blue),
             _ => Err(()),
         }
     }
