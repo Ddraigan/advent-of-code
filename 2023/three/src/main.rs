@@ -3,8 +3,8 @@ use std::{fs, path::Path};
 fn main() {
     let lines = file_to_string("src/input.txt");
     let grid = Grid::new(&lines);
-    println!("{:?}", grid);
-    println!("{:?}", grid.content[0].len())
+
+    grid.symbols();
 }
 
 #[derive(Debug)]
@@ -23,6 +23,14 @@ impl Grid {
         let content = Self::parse_content(content);
 
         Self { content }
+    }
+
+    fn symbols(&self) {
+        self.content.iter().for_each(|line| {
+            line.iter()
+                .filter(|char| (**char as u8) < 48 && (**char as u8) != 46)
+                .for_each(|char| println!("{:?}", char))
+        })
     }
 
     fn parse_content(content: &str) -> Vec<Vec<char>> {
