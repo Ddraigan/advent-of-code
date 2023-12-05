@@ -51,13 +51,13 @@ impl CubeGame {
     }
 
     fn join_rounds(&self) -> Vec<&Cube> {
-        let mut big_round = vec![];
-
-        for round in &self.rounds {
-            big_round.push(&round.cubes)
-        }
-
-        big_round.into_iter().flatten().collect()
+        self.rounds
+            .iter()
+            .map(|round| &round.cubes)
+            .collect::<Vec<&Vec<Cube>>>()
+            .into_iter()
+            .flatten()
+            .collect()
     }
 
     // fn largest_cubes(&self, colour: &Colour) -> Vec<&Cube> {
