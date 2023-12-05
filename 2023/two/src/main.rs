@@ -6,26 +6,10 @@ use std::{
 
 fn main() {
     let lines = lines_from_file("src/input.txt").expect("Path to have a readable file");
-
     let record = Record::new(lines);
 
     println!("{:?}", record.possible_games());
-
-    let mut sum_of_powers = vec![];
-
-    for game in record.games {
-        let big_round = game.join_rounds();
-        let largest_each_round = CubeGame::largest_cubes(big_round);
-        // println!("{} - {:?}", game.game_id, largest_each_round);
-
-        let power: usize = largest_each_round[0] as usize
-            * largest_each_round[1] as usize
-            * largest_each_round[2] as usize;
-
-        sum_of_powers.push(power)
-    }
-
-    println!("{}", sum_of_powers.iter().sum::<usize>())
+    println!("{}", record.sum_round_powers())
 }
 
 #[derive(Debug)]
@@ -38,6 +22,22 @@ impl Record {
         let games = lines.iter().map(|line| CubeGame::new(&line)).collect();
 
         Self { games }
+    }
+
+    fn sum_round_powers(&self) -> usize {
+        self.power_of_rounds().iter().sum()
+    }
+
+    fn power_of_rounds(&self) -> Vec<usize> {
+        self.games
+            .iter()
+            .map(|game| {
+                CubeGame::largest_cubes(game.join_rounds())
+                    .iter()
+                    .map(|num| *num as usize)
+                    .product()
+            })
+            .collect()
     }
 
     fn possible_games(&self) -> u32 {
