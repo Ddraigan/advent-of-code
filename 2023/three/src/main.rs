@@ -16,13 +16,20 @@ struct Grid {
 }
 
 impl Grid {
-    // fn new(content: String) -> Self {
-    //     let content = Self::parse_content(content);
-    //
-    //     Self { content }
-    // }
+    fn new(content: String) -> Self {
+        let content = Self::parse_content(content);
 
-    fn parse_content(content: String) {}
+        Self { content }
+    }
+
+    fn parse_content(content: String) -> Vec<Vec<char>> {
+        let mut vec: Vec<Vec<char>> = vec![];
+        for line in content.lines() {
+            vec.push(line.chars().collect())
+        }
+
+        vec
+    }
 }
 
 fn lines_from_file(path: impl AsRef<Path>) -> String {
