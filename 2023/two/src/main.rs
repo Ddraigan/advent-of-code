@@ -10,6 +10,10 @@ fn main() {
     let record = Record::new(lines);
 
     println!("{:?}", record.possible_games());
+
+    for game in record.games {
+        println!("{:?}", game.join_rounds());
+    }
 }
 
 #[derive(Debug)]
@@ -46,32 +50,27 @@ impl CubeGame {
         Self { game_id, rounds }
     }
 
-    fn minimum(&self) {
-        let 
-
+    fn join_rounds(&self) -> Vec<&Cube> {
+        let mut big_round = vec![];
 
         for round in &self.rounds {
-            let red: Vec<&Cube> = round
-                .cubes
-                .iter()
-                .take_while(|cube| cube.colour == Colour::Red)
-                .collect();
-
-            let green: Vec<&Cube> = round
-                .cubes
-                .iter()
-                .take_while(|cube| cube.colour == Colour::Green)
-                .collect();
-
-            let blue: Vec<&Cube> = round
-                .cubes
-                .iter()
-                .take_while(|cube| cube.colour == Colour::Blue)
-                .collect();
-
-
+            big_round.push(&round.cubes)
         }
+
+        big_round.into_iter().flatten().collect()
     }
+
+    // fn largest_cubes(&self, colour: &Colour) -> Vec<&Cube> {
+    //     let mut cubes: Vec<&Cube> = vec![];
+    //
+    //     for round in &self.rounds {
+    //         if round.largest_cube(colour).is_some() {
+    //             cubes.push(round.largest_cube(colour).unwrap())
+    //         }
+    //     }
+    //
+    //     cubes
+    // }
 
     fn is_max(&self) -> bool {
         self.rounds.iter().any(|round| round.is_max())
@@ -105,6 +104,17 @@ impl Round {
         let cubes = Self::parse_cubes(round);
         Self { cubes }
     }
+
+    // fn largest_cube(&self, colour: &Colour) -> Option<&Cube> {
+    //     for cube in &self.cubes {
+    //         if cube.colour == *colour {
+    //             return Some(cube);
+    //         } else {
+    //             return None;
+    //         }
+    //     }
+    //     None
+    // }
 
     fn is_max(&self) -> bool {
         self.cubes.iter().any(|cube| cube.is_max())
