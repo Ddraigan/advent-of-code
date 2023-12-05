@@ -1,7 +1,9 @@
 use std::{fs, path::Path};
 
 fn main() {
-    println!("{:?}", lines_from_file("src/input.txt"))
+    let lines = lines_from_file("src/input.txt");
+    let grid = Grid::new(lines);
+    println!("{:?}", grid)
 }
 
 #[derive(Debug)]
@@ -24,6 +26,7 @@ impl Grid {
 
     fn parse_content(content: String) -> Vec<Vec<char>> {
         let mut vec: Vec<Vec<char>> = vec![];
+
         for line in content.lines() {
             vec.push(line.chars().collect())
         }
