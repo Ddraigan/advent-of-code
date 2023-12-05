@@ -3,7 +3,8 @@ use std::{fs, path::Path};
 fn main() {
     let lines = lines_from_file("src/input.txt");
     let grid = Grid::new(lines);
-    println!("{:?}", grid)
+    println!("{:?}", grid);
+    println!("{:?}", grid.content[0].len())
 }
 
 #[derive(Debug)]
