@@ -4,13 +4,19 @@ fn main() {
     let lines = file_to_string("src/input.txt");
     let grid = Grid::new(&lines);
 
-    grid.symbols();
+    println!("{:#?}", grid.symbols());
 }
 
 #[derive(Debug)]
 struct Point {
     x: u8,
     y: u8,
+}
+
+impl Point {
+    fn new(x: u8, y: u8) -> Self {
+        Self { x, y }
+    }
 }
 
 #[derive(Debug)]
@@ -25,12 +31,19 @@ impl Grid {
         Self { content }
     }
 
-    fn symbols(&self) {
-        self.content.iter().for_each(|line| {
-            line.iter()
-                .filter(|char| (**char as u8) < 48 && (**char as u8) != 46)
-                .for_each(|char| println!("{:?}", char))
-        })
+    fn symbols(&self) -> Vec<Point> {
+        self.content
+            .iter()
+            .enumerate()
+            .map(|(y, line)| {
+                line.iter()
+                    .filter(|char| (**char as u8) < 48 && (**char as u8) != 46)
+                    .enumerate()
+                    .map(|(x, _char)| Point::new(x.try_into().unwrap(), y.try_into().unwrap()))
+                    .collect::<Vec<Point>>()
+            })
+            .flatten()
+            .collect()
     }
 
     fn parse_content(content: &str) -> Vec<Vec<char>> {
