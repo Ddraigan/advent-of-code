@@ -44,10 +44,9 @@ impl Grid {
                             || (**char as u8) == 64
                             || (**char as u8) < 48 && (**char as u8) != 46
                     })
-                    .map(|(x, char)| {
+                    .map(move |(x, char)| {
                         Point::new(x.try_into().unwrap(), y.try_into().unwrap(), *char)
                     })
-                    .collect::<Vec<Point>>()
             })
             .collect()
     }
