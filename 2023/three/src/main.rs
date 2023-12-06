@@ -4,7 +4,6 @@ fn main() {
     let lines = file_to_string("src/input.txt");
     let grid = Grid::new(&lines);
 
-    // println!("{:#?}", grid.find_symbols());
     println!("{:#?}", grid.part_one());
 }
 
@@ -72,6 +71,7 @@ impl Grid {
 
     fn part_one(&self) -> usize {
         let mut numbers: Vec<usize> = vec![];
+        let mut neighbour_bois = vec![];
 
         for (y, line) in self.content.iter().enumerate() {
             for (x, char) in line.iter().enumerate() {
@@ -88,10 +88,12 @@ impl Grid {
                     if !self.point(&neighbour).is_ascii_digit() {
                         continue;
                     }
-                    println!("{}", self.point(&neighbour))
+                    println!("{}", self.point(&neighbour));
+                    neighbour_bois.push(self.point(&neighbour))
                 }
             }
         }
+        print!("{neighbour_bois:?}");
 
         numbers.into_iter().sum()
     }
