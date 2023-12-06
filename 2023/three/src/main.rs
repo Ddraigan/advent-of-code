@@ -95,7 +95,7 @@ impl Grid {
         Self { content }
     }
 
-    fn part_one(&self) -> usize {
+    fn part_one(&mut self) -> usize {
         let mut numbers: Vec<usize> = vec![];
 
         for (y, line) in self.content.iter().enumerate() {
@@ -114,7 +114,8 @@ impl Grid {
                         continue;
                     }
 
-                    let mut number_string = String::from(*self.val_at_point(&current_point));
+                    let mut number_string =
+                        String::from(self.take_replace_val_at_point(&current_point));
 
                     if self.val_at_point(&current_point.next_x()).is_ascii_digit() {
                         number_string.push(*self.val_at_point(&current_point.next_x()))
@@ -124,6 +125,14 @@ impl Grid {
         }
 
         numbers.into_iter().sum()
+    }
+
+    fn take_replace_val_at_point(&mut self, point: &Point) -> char {
+        let og_val = self.content[point.y as usize][point.x as usize];
+
+        self.content[point.y as usize][point.x as usize] = '.';
+
+        og_val
     }
 
     fn val_at_point(&self, point: &Point) -> &char {
