@@ -4,7 +4,7 @@ fn main() {
     let lines = file_to_string("src/input.txt");
     let grid = Grid::new(&lines);
 
-    println!("{:#?}", grid.symbols);
+    println!("{:#?}", grid.find_symbols());
 }
 
 #[derive(Debug)]
@@ -23,19 +23,30 @@ impl Point {
 #[derive(Debug)]
 struct Grid {
     content: Vec<Vec<char>>,
-    symbols: Vec<Point>,
 }
 
 impl Grid {
     fn new(content: &str) -> Self {
         let content = Self::parse_content(content);
-        let symbols = Self::find_symbols(&content);
 
-        Self { content, symbols }
+        Self { content }
     }
 
-    fn find_symbols(content: &Vec<Vec<char>>) -> Vec<Point> {
-        content
+    fn part_one(&self) {
+        let neighbours: [(i32, i32); 8] = [
+            (1, 1),
+            (1, 0),
+            (1, -1),
+            (0, 1),
+            (0, -1),
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+        ];
+    }
+
+    fn find_symbols(&self) -> Vec<Point> {
+        self.content
             .iter()
             .enumerate()
             .flat_map(|(y, line)| {
@@ -67,26 +78,5 @@ impl Grid {
 }
 
 fn file_to_string(path: impl AsRef<Path>) -> String {
-    fs::read_to_string(path).expect("File to be there")
+    fs::read_to_string(path).expect("File to be exist")
 }
-
-// content
-//     .iter()
-//     .enumerate()
-//     .flat_map(|(y, line)| {
-//         line.iter()
-//             .enumerate()
-//             .filter(|(_x, char)| {
-//                 (**char as u8) == 61
-//                     || (**char as u8) == 64
-//                     || (**char as u8) < 48 && (**char as u8) != 46
-//             })
-//             .map(move |(x, char)| {
-//                 Point::new(
-//                     x.try_into().expect("Number to be within bounds of u8"),
-//                     y.try_into().expect("Number to be within bounds of u8"),
-//                     *char,
-//                 )
-//             })
-//     })
-//     .collect()
