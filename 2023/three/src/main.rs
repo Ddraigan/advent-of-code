@@ -18,6 +18,32 @@ impl Point {
         Self { x, y }
     }
 
+    fn next_x(&self) -> Self {
+        Self {
+            x: self.x + 1,
+            y: self.y,
+        }
+    }
+
+    fn next_y(&self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y + 1,
+        }
+    }
+    fn prev_x(&self) -> Self {
+        Self {
+            x: self.x - 1,
+            y: self.y,
+        }
+    }
+    fn prev_y(&self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y - 1,
+        }
+    }
+
     fn neighbours(&self) -> [Point; 8] {
         let neighbours: [Point; 8] = [
             Point {
@@ -71,7 +97,6 @@ impl Grid {
 
     fn part_one(&self) -> usize {
         let mut numbers: Vec<usize> = vec![];
-        let mut neighbour_bois = vec![];
 
         for (y, line) in self.content.iter().enumerate() {
             for (x, char) in line.iter().enumerate() {
@@ -84,45 +109,26 @@ impl Grid {
                     y.try_into().expect("Within bounds of u8"),
                 );
 
-                for neighbour in point.neighbours() {
-                    if !self.point(&neighbour).is_ascii_digit() {
+                for current_point in point.neighbours() {
+                    if !self.val_at_point(&current_point).is_ascii_digit() {
                         continue;
                     }
-                    println!("{}", self.point(&neighbour));
-                    neighbour_bois.push(self.point(&neighbour))
+
+                    let mut number_string = String::from(*self.val_at_point(&current_point));
+
+                    if self.val_at_point(&current_point.next_x()).is_ascii_digit() {
+                        number_string.push(*self.val_at_point(&current_point.next_x()))
+                    }
                 }
             }
         }
-        print!("{neighbour_bois:?}");
 
         numbers.into_iter().sum()
     }
 
-    fn point(&self, point: &Point) -> &char {
+    fn val_at_point(&self, point: &Point) -> &char {
         &self.content[point.y as usize][point.x as usize]
     }
-
-    // fn find_symbols(&self) -> Vec<Point> {
-    //     self.content
-    //         .iter()
-    //         .enumerate()
-    //         .flat_map(|(y, line)| {
-    //             line.iter().enumerate().filter_map(move |(x, char)| {
-    //                 if (*char as u8) == 61
-    //                     || (*char as u8) == 64
-    //                     || (*char as u8) < 48 && (*char as u8) != 46
-    //                 {
-    //                     Some(Point::new(
-    //                         x.try_into().expect("Number to be within bounds of u8"),
-    //                         y.try_into().expect("Number to be within bounds of u8"),
-    //                     ))
-    //                 } else {
-    //                     None
-    //                 }
-    //             })
-    //         })
-    //         .collect()
-    // }
 
     fn parse_content(content: &str) -> Vec<Vec<char>> {
         content
