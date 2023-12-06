@@ -39,16 +39,20 @@ impl Grid {
             .iter()
             .enumerate()
             .flat_map(|(y, line)| {
-                line.iter()
-                    .enumerate()
-                    .filter(|(_x, char)| {
-                        (**char as u8) == 61
-                            || (**char as u8) == 64
-                            || (**char as u8) < 48 && (**char as u8) != 46
-                    })
-                    .map(move |(x, char)| {
-                        Point::new(x.try_into().unwrap(), y.try_into().unwrap(), *char)
-                    })
+                line.iter().enumerate().filter_map(move |(x, char)| {
+                    if (*char as u8) == 61
+                        || (*char as u8) == 64
+                        || (*char as u8) < 48 && (*char as u8) != 46
+                    {
+                        Some(Point::new(
+                            x.try_into().expect("Number to be within bounds of u8"),
+                            y.try_into().expect("Number to be within bounds of u8"),
+                            *char,
+                        ))
+                    } else {
+                        None
+                    }
+                })
             })
             .collect()
     }
@@ -65,3 +69,24 @@ impl Grid {
 fn file_to_string(path: impl AsRef<Path>) -> String {
     fs::read_to_string(path).expect("File to be there")
 }
+
+// content
+//     .iter()
+//     .enumerate()
+//     .flat_map(|(y, line)| {
+//         line.iter()
+//             .enumerate()
+//             .filter(|(_x, char)| {
+//                 (**char as u8) == 61
+//                     || (**char as u8) == 64
+//                     || (**char as u8) < 48 && (**char as u8) != 46
+//             })
+//             .map(move |(x, char)| {
+//                 Point::new(
+//                     x.try_into().expect("Number to be within bounds of u8"),
+//                     y.try_into().expect("Number to be within bounds of u8"),
+//                     *char,
+//                 )
+//             })
+//     })
+//     .collect()
