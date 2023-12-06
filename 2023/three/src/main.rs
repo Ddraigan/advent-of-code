@@ -2,7 +2,7 @@ use std::{fs, path::Path, vec};
 
 fn main() {
     let lines = file_to_string("src/input.txt");
-    let grid = Grid::new(&lines);
+    let mut grid = Grid::new(&lines);
 
     println!("{:#?}", grid.part_one());
 }
@@ -98,7 +98,9 @@ impl Grid {
     fn part_one(&mut self) -> usize {
         let mut numbers: Vec<usize> = vec![];
 
-        for (y, line) in self.content.iter().enumerate() {
+        let grid = self.content.clone();
+
+        for (y, line) in grid.iter().enumerate() {
             for (x, char) in line.iter().enumerate() {
                 if !char.is_symbol() {
                     continue;
@@ -118,8 +120,10 @@ impl Grid {
                         String::from(self.take_replace_val_at_point(&current_point));
 
                     if self.val_at_point(&current_point.next_x()).is_ascii_digit() {
-                        number_string.push(*self.val_at_point(&current_point.next_x()))
+                        number_string.push(self.take_replace_val_at_point(&current_point.next_x()))
                     }
+
+                    print!("{number_string}")
                 }
             }
         }
