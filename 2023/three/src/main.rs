@@ -11,11 +11,12 @@ fn main() {
 struct Point {
     x: u8,
     y: u8,
+    value: char,
 }
 
 impl Point {
-    fn new(x: u8, y: u8) -> Self {
-        Self { x, y }
+    fn new(x: u8, y: u8, value: char) -> Self {
+        Self { x, y, value }
     }
 }
 
@@ -35,14 +36,19 @@ impl Grid {
         self.content
             .iter()
             .enumerate()
-            .map(|(y, line)| {
+            .flat_map(|(y, line)| {
                 line.iter()
-                    .filter(|char| (**char as u8) < 48 && (**char as u8) != 46)
                     .enumerate()
-                    .map(|(x, _char)| Point::new(x.try_into().unwrap(), y.try_into().unwrap()))
+                    .filter(|(_x, char)| {
+                        (**char as u8) == 61
+                            || (**char as u8) == 64
+                            || (**char as u8) < 48 && (**char as u8) != 46
+                    })
+                    .map(|(x, char)| {
+                        Point::new(x.try_into().unwrap(), y.try_into().unwrap(), *char)
+                    })
                     .collect::<Vec<Point>>()
             })
-            .flatten()
             .collect()
     }
 
