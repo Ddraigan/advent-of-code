@@ -4,7 +4,7 @@ fn main() {
     let lines = file_to_string("src/input.txt");
     let grid = Grid::new(&lines);
 
-    println!("{:#?}", grid.symbols());
+    println!("{:#?}", grid.symbols);
 }
 
 #[derive(Debug)]
@@ -23,17 +23,19 @@ impl Point {
 #[derive(Debug)]
 struct Grid {
     content: Vec<Vec<char>>,
+    symbols: Vec<Point>,
 }
 
 impl Grid {
     fn new(content: &str) -> Self {
         let content = Self::parse_content(content);
+        let symbols = Self::find_symbols(&content);
 
-        Self { content }
+        Self { content, symbols }
     }
 
-    fn symbols(&self) -> Vec<Point> {
-        self.content
+    fn find_symbols(content: &Vec<Vec<char>>) -> Vec<Point> {
+        content
             .iter()
             .enumerate()
             .flat_map(|(y, line)| {
