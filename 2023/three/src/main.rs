@@ -7,11 +7,6 @@ fn main() {
     println!("{part_one}");
 }
 
-// for current_point in point.neighbours() {
-//     if !self.val_at_point(&current_point).is_ascii_digit() {
-//         continue;
-//     }
-
 fn points_at_symbol(grid: &mut Grid) -> usize {
     let content = &mut grid.content;
     let height = content.len();
@@ -19,14 +14,14 @@ fn points_at_symbol(grid: &mut Grid) -> usize {
 
     let mut nums: Vec<usize> = vec![];
 
-    let mut actions = vec![];
+    let mut neighbours = vec![];
 
     for y in 0..height {
         for x in 0..width {
             if content[y][x].is_symbol() {
                 let current_point = Point::new(x.try_into().unwrap(), y.try_into().unwrap());
 
-                actions.extend(
+                neighbours.extend(
                     current_point
                         .neighbours()
                         .iter()
@@ -43,7 +38,7 @@ fn points_at_symbol(grid: &mut Grid) -> usize {
         }
     }
 
-    for neighbour in actions {
+    for neighbour in neighbours {
         let neighbour_val = grid.val_at_point(&neighbour);
 
         if !neighbour_val.is_ascii_digit() {
@@ -79,21 +74,8 @@ fn points_at_symbol(grid: &mut Grid) -> usize {
             num_string_right
         );
 
-        print!(
-            "Left - {} | Mid - {} | Right - {} ////",
-            num_string_left.chars().rev().collect::<String>(),
-            num_string_mid,
-            num_string_right
-        );
-
         nums.push(num_string.parse::<usize>().unwrap())
     }
-    print!("{nums:?}");
-
-    nums.iter()
-        .enumerate()
-        .map(|(i, num)| format!("Index: {i} - {num}"))
-        .for_each(|inum| println!("{inum}"));
 
     nums.into_iter().sum()
 }
@@ -221,23 +203,11 @@ fn file_to_string(path: impl AsRef<Path>) -> String {
     fs::read_to_string(path).expect("File to be exist")
 }
 
-// #[test]
-// fn part_one_test() {
-//     let control = [
-//         Point { x: 121, y: 139 },
-//         Point { x: 121, y: 138 },
-//         Point { x: 121, y: 137 },
-//         Point { x: 120, y: 139 },
-//         Point { x: 120, y: 137 },
-//         Point { x: 119, y: 137 },
-//         Point { x: 119, y: 138 },
-//         Point { x: 119, y: 139 },
-//     ];
-//
-//     let lines = file_to_string("src/input.txt");
-//     let grid = Grid::new(&lines);
-//
-//     println!("{:#?}", grid.part_one().last());
-//
-//     assert!(&control == grid.part_one().last().unwrap())
-// }
+#[test]
+fn part_one_test() {
+    let lines = file_to_string("src/input.txt");
+    let mut grid = Grid::new(&lines);
+    let part_one = points_at_symbol(&mut grid);
+
+    assert_eq!(part_one, 551094);
+}
