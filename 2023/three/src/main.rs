@@ -3,81 +3,8 @@ use std::{fs, path::Path};
 fn main() {
     let lines = file_to_string("src/input.txt");
     let mut grid = Grid::new(&lines);
-    let part_one = points_at_symbol(&mut grid);
+    let part_one = grid.sum_numbers_around_symbols();
     println!("{part_one}");
-}
-
-fn points_at_symbol(grid: &mut Grid) -> usize {
-    let content = &mut grid.content;
-    let height = content.len();
-    let width = content[0].len();
-
-    let mut nums: Vec<usize> = vec![];
-
-    let mut neighbours = vec![];
-
-    for y in 0..height {
-        for x in 0..width {
-            if content[y][x].is_symbol() {
-                let current_point = Point::new(x.try_into().unwrap(), y.try_into().unwrap());
-
-                neighbours.extend(
-                    current_point
-                        .neighbours()
-                        .iter()
-                        .filter(|&neighbour| {
-                            let nx = neighbour.x as usize;
-                            let ny = neighbour.y as usize;
-                            nx < width && ny < height && content[ny][nx].is_ascii_digit()
-                        })
-                        .cloned()
-                        .into_iter()
-                        .map(move |neighbour| neighbour),
-                );
-            }
-        }
-    }
-
-    for neighbour in neighbours {
-        let neighbour_val = grid.val_at_point(&neighbour);
-
-        if !neighbour_val.is_ascii_digit() {
-            continue;
-        }
-
-        let mut num_string_left = String::from("");
-        let num_string_mid = String::from(neighbour_val);
-        let mut num_string_right = String::from("");
-
-        for n in 1..3 {
-            let next_point = Point::new(&neighbour.x + n, neighbour.y);
-            if !grid.val_at_point(&next_point).is_ascii_digit() {
-                break;
-            }
-            num_string_right.push(grid.val_at_point(&next_point));
-            grid.replace_at_point(&next_point);
-        }
-
-        for n in 1..3 {
-            let last_point = Point::new(&neighbour.x - n, neighbour.y);
-            if !grid.val_at_point(&last_point).is_ascii_digit() {
-                break;
-            }
-            num_string_left.push(grid.val_at_point(&last_point));
-            grid.replace_at_point(&last_point);
-        }
-
-        let num_string = format!(
-            "{}{}{}",
-            num_string_left.chars().rev().collect::<String>(),
-            num_string_mid,
-            num_string_right
-        );
-
-        nums.push(num_string.parse::<usize>().unwrap())
-    }
-
-    nums.into_iter().sum()
 }
 
 #[derive(Debug)]
@@ -92,12 +19,73 @@ impl Grid {
         Self { content }
     }
 
-    fn replace_at_point(&mut self, point: &Point) {
-        self.content[point.y as usize][point.x as usize] = '.';
+    fn sum_numbers_around_symbols(&mut self) -> usize {
+        self.number_neigbour_points()
+            .iter()
+            .filter_map(|&neighbour| {
+                if !self.get(&neighbour).is_ascii_digit() {
+                    return None;
+                }
+
+                let (num_string_left, num_string_right) = self.numbers_around_point(&neighbour);
+
+                let num_string = format!(
+                    "{}{}{}",
+                    num_string_left.chars().rev().collect::<String>(),
+                    self.get(&neighbour),
+                    num_string_right
+                );
+
+                num_string.parse::<usize>().ok()
+            })
+            .sum()
     }
 
-    fn val_at_point(&self, point: &Point) -> char {
-        self.content[point.y as usize][point.x as usize]
+    fn numbers_around_point(&mut self, neighbour: &Point) -> (String, String) {
+        let mut num_string_left = String::new();
+        let mut num_string_right = String::new();
+
+        for (direction, num_string) in &mut [(-1, &mut num_string_left), (1, &mut num_string_right)]
+        {
+            for n in 1..=2 {
+                let next_point = neighbour.add_offset(*direction * n, 0);
+                if !self.get(&next_point).is_ascii_digit() {
+                    break;
+                }
+                num_string.push(self.take(&next_point));
+            }
+        }
+
+        (num_string_left, num_string_right)
+    }
+
+    fn number_neigbour_points(&self) -> Vec<Point> {
+        self.content
+            .iter()
+            .enumerate()
+            .flat_map(|(y, row)| {
+                row.iter()
+                    .enumerate()
+                    .filter(|(_, &cell)| cell.is_symbol())
+                    .flat_map(move |(x, _)| {
+                        Point::new(x.try_into().unwrap(), y.try_into().unwrap()).neighbours()
+                    })
+            })
+            .collect()
+    }
+
+    fn replace(&mut self, point: &Point, char: char) {
+        self.content[point.y as usize][point.x as usize] = char
+    }
+
+    fn take(&mut self, point: &Point) -> char {
+        let val = self.content[point.y as usize][point.x as usize];
+        self.replace(point, '.');
+        val
+    }
+
+    fn get(&self, point: &Point) -> &char {
+        &self.content[point.y as usize][point.x as usize]
     }
 
     fn parse_content(content: &str) -> Vec<Vec<char>> {
@@ -120,68 +108,24 @@ impl Point {
         Self { x, y }
     }
 
-    fn next_x(&self) -> Self {
+    fn add_offset(&self, dx: i32, dy: i32) -> Self {
         Self {
-            x: self.x + 1,
-            y: self.y,
-        }
-    }
-
-    fn next_y(&self) -> Self {
-        Self {
-            x: self.x,
-            y: self.y + 1,
-        }
-    }
-    fn prev_x(&self) -> Self {
-        Self {
-            x: self.x - 1,
-            y: self.y,
-        }
-    }
-    fn prev_y(&self) -> Self {
-        Self {
-            x: self.x,
-            y: self.y - 1,
+            x: self.x + dx,
+            y: self.y + dy,
         }
     }
 
     fn neighbours(&self) -> [Point; 8] {
-        let neighbours: [Point; 8] = [
-            Point {
-                x: self.x + 1,
-                y: self.y + 1,
-            },
-            Point {
-                x: self.x + 1,
-                y: self.y,
-            },
-            Point {
-                x: self.x + 1,
-                y: self.y - 1,
-            },
-            Point {
-                x: self.x,
-                y: self.y + 1,
-            },
-            Point {
-                x: self.x,
-                y: self.y - 1,
-            },
-            Point {
-                x: self.x - 1,
-                y: self.y - 1,
-            },
-            Point {
-                x: self.x - 1,
-                y: self.y,
-            },
-            Point {
-                x: self.x - 1,
-                y: self.y + 1,
-            },
-        ];
-        neighbours
+        [
+            self.add_offset(1, 1),
+            self.add_offset(1, 0),
+            self.add_offset(1, -1),
+            self.add_offset(0, 1),
+            self.add_offset(0, -1),
+            self.add_offset(-1, -1),
+            self.add_offset(-1, 0),
+            self.add_offset(-1, 1),
+        ]
     }
 }
 
@@ -207,7 +151,7 @@ fn file_to_string(path: impl AsRef<Path>) -> String {
 fn part_one_test() {
     let lines = file_to_string("src/input.txt");
     let mut grid = Grid::new(&lines);
-    let part_one = points_at_symbol(&mut grid);
+    let part_one = grid.sum_numbers_around_symbols();
 
     assert_eq!(part_one, 551094);
 }
