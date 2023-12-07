@@ -1,8 +1,8 @@
-use std::{fs, path::Path, vec};
+use std::{fs, path::Path};
 
 fn main() {
     let lines = file_to_string("src/input.txt");
-    let mut grid = Grid::new(&lines);
+    let grid = Grid::new(&lines);
 
     println!("{:#?}", grid.points_at_symbol());
 }
@@ -24,27 +24,25 @@ impl Grid {
         Self { content }
     }
 
-    fn points_at_symbol(&mut self) -> Vec<Point> {
-        let mut points: Vec<Point> = vec![];
-
-        for (y, line) in self.content.iter().enumerate() {
-            for (x, char) in line.iter().enumerate() {
-                {
-                    if !char.is_symbol() {
-                        continue;
-                    }
-
-                    let point = Point::new(
-                        x.try_into().expect("Within bounds of u8"),
-                        y.try_into().expect("Within bounds of u8"),
-                    );
-
-                    points.push(point)
-                }
-            }
-        }
-
-        points
+    fn points_at_symbol(&self) -> usize {
+        self.content
+            .iter()
+            .enumerate()
+            .flat_map(|(y, line)| {
+                line.iter()
+                    .enumerate()
+                    .filter(|(_x, char)| char.is_symbol())
+                    .map(move |(x, _char)| {
+                        Point::new(
+                            x.try_into().expect("Within bounds of u8"),
+                            y.try_into().expect("Within bounds of u8"),
+                        )
+                        .neighbours()
+                        .iter()
+                        .filter(|current_point| self.val_at_point(current_point).is_ascii_digit())
+                    })
+            })
+            .sum()
     }
 
     fn take_replace_val_at_point(&mut self, point: &Point) -> char {
