@@ -4,7 +4,68 @@ fn main() {
     let lines = file_to_string("src/input.txt");
     let mut grid = Grid::new(&lines);
 
-    println!("{:#?}", grid.part_one());
+    println!("{:#?}", grid.points_at_symbol());
+}
+
+// for current_point in point.neighbours() {
+//     if !self.val_at_point(&current_point).is_ascii_digit() {
+//         continue;
+//     }
+
+#[derive(Debug)]
+struct Grid {
+    content: Vec<Vec<char>>,
+}
+
+impl Grid {
+    fn new(content: &str) -> Self {
+        let content = Self::parse_content(content);
+
+        Self { content }
+    }
+
+    fn points_at_symbol(&mut self) -> Vec<Point> {
+        let mut points: Vec<Point> = vec![];
+
+        for (y, line) in self.content.iter().enumerate() {
+            for (x, char) in line.iter().enumerate() {
+                {
+                    if !char.is_symbol() {
+                        continue;
+                    }
+
+                    let point = Point::new(
+                        x.try_into().expect("Within bounds of u8"),
+                        y.try_into().expect("Within bounds of u8"),
+                    );
+
+                    points.push(point)
+                }
+            }
+        }
+
+        points
+    }
+
+    fn take_replace_val_at_point(&mut self, point: &Point) -> char {
+        let og_val = self.content[point.y as usize][point.x as usize];
+
+        self.content[point.y as usize][point.x as usize] = '.';
+
+        og_val
+    }
+
+    fn val_at_point(&self, point: &Point) -> &char {
+        &self.content[point.y as usize][point.x as usize]
+    }
+
+    fn parse_content(content: &str) -> Vec<Vec<char>> {
+        content
+            .lines()
+            .into_iter()
+            .map(|line| line.chars().collect())
+            .collect()
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -80,75 +141,6 @@ impl Point {
             },
         ];
         neighbours
-    }
-}
-
-#[derive(Debug)]
-struct Grid {
-    content: Vec<Vec<char>>,
-}
-
-impl Grid {
-    fn new(content: &str) -> Self {
-        let content = Self::parse_content(content);
-
-        Self { content }
-    }
-
-    fn part_one(&mut self) -> usize {
-        let mut numbers: Vec<usize> = vec![];
-
-        let grid = self.content.clone();
-
-        for (y, line) in grid.iter().enumerate() {
-            for (x, char) in line.iter().enumerate() {
-                if !char.is_symbol() {
-                    continue;
-                }
-
-                let point = Point::new(
-                    x.try_into().expect("Within bounds of u8"),
-                    y.try_into().expect("Within bounds of u8"),
-                );
-
-                for current_point in point.neighbours() {
-                    if !self.val_at_point(&current_point).is_ascii_digit() {
-                        continue;
-                    }
-
-                    let mut number_string =
-                        String::from(self.take_replace_val_at_point(&current_point));
-
-                    if self.val_at_point(&current_point.next_x()).is_ascii_digit() {
-                        number_string.push(self.take_replace_val_at_point(&current_point.next_x()))
-                    }
-
-                    print!("{number_string}")
-                }
-            }
-        }
-
-        numbers.into_iter().sum()
-    }
-
-    fn take_replace_val_at_point(&mut self, point: &Point) -> char {
-        let og_val = self.content[point.y as usize][point.x as usize];
-
-        self.content[point.y as usize][point.x as usize] = '.';
-
-        og_val
-    }
-
-    fn val_at_point(&self, point: &Point) -> &char {
-        &self.content[point.y as usize][point.x as usize]
-    }
-
-    fn parse_content(content: &str) -> Vec<Vec<char>> {
-        content
-            .lines()
-            .into_iter()
-            .map(|line| line.chars().collect())
-            .collect()
     }
 }
 
