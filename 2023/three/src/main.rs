@@ -2,15 +2,101 @@ use std::{fs, path::Path};
 
 fn main() {
     let lines = file_to_string("src/input.txt");
-    let grid = Grid::new(&lines);
-
-    println!("{:#?}", grid.points_at_symbol());
+    let mut grid = Grid::new(&lines);
+    let part_one = points_at_symbol(&mut grid);
+    println!("{part_one}");
 }
 
 // for current_point in point.neighbours() {
 //     if !self.val_at_point(&current_point).is_ascii_digit() {
 //         continue;
 //     }
+
+fn points_at_symbol(grid: &mut Grid) -> usize {
+    let content = &mut grid.content;
+    let height = content.len();
+    let width = content[0].len();
+
+    let mut nums: Vec<usize> = vec![];
+
+    let mut actions = vec![];
+
+    for y in 0..height {
+        for x in 0..width {
+            if content[y][x].is_symbol() {
+                let current_point = Point::new(x.try_into().unwrap(), y.try_into().unwrap());
+
+                actions.extend(
+                    current_point
+                        .neighbours()
+                        .iter()
+                        .filter(|&neighbour| {
+                            let nx = neighbour.x as usize;
+                            let ny = neighbour.y as usize;
+                            nx < width && ny < height && content[ny][nx].is_ascii_digit()
+                        })
+                        .cloned()
+                        .into_iter()
+                        .map(move |neighbour| neighbour),
+                );
+            }
+        }
+    }
+
+    for neighbour in actions {
+        let neighbour_val = grid.val_at_point(&neighbour);
+
+        if !neighbour_val.is_ascii_digit() {
+            continue;
+        }
+
+        let mut num_string_left = String::from("");
+        let num_string_mid = String::from(neighbour_val);
+        let mut num_string_right = String::from("");
+
+        for n in 1..3 {
+            let next_point = Point::new(&neighbour.x + n, neighbour.y);
+            if !grid.val_at_point(&next_point).is_ascii_digit() {
+                break;
+            }
+            num_string_right.push(grid.val_at_point(&next_point));
+            grid.replace_at_point(&next_point);
+        }
+
+        for n in 1..3 {
+            let last_point = Point::new(&neighbour.x - n, neighbour.y);
+            if !grid.val_at_point(&last_point).is_ascii_digit() {
+                break;
+            }
+            num_string_left.push(grid.val_at_point(&last_point));
+            grid.replace_at_point(&last_point);
+        }
+
+        let num_string = format!(
+            "{}{}{}",
+            num_string_left.chars().rev().collect::<String>(),
+            num_string_mid,
+            num_string_right
+        );
+
+        print!(
+            "Left - {} | Mid - {} | Right - {} ////",
+            num_string_left.chars().rev().collect::<String>(),
+            num_string_mid,
+            num_string_right
+        );
+
+        nums.push(num_string.parse::<usize>().unwrap())
+    }
+    print!("{nums:?}");
+
+    nums.iter()
+        .enumerate()
+        .map(|(i, num)| format!("Index: {i} - {num}"))
+        .for_each(|inum| println!("{inum}"));
+
+    nums.into_iter().sum()
+}
 
 #[derive(Debug)]
 struct Grid {
@@ -24,37 +110,12 @@ impl Grid {
         Self { content }
     }
 
-    fn points_at_symbol(&self) -> usize {
-        self.content
-            .iter()
-            .enumerate()
-            .flat_map(|(y, line)| {
-                line.iter()
-                    .enumerate()
-                    .filter(|(_x, char)| char.is_symbol())
-                    .map(move |(x, _char)| {
-                        Point::new(
-                            x.try_into().expect("Within bounds of u8"),
-                            y.try_into().expect("Within bounds of u8"),
-                        )
-                        .neighbours()
-                        .iter()
-                        .filter(|current_point| self.val_at_point(current_point).is_ascii_digit())
-                    })
-            })
-            .sum()
-    }
-
-    fn take_replace_val_at_point(&mut self, point: &Point) -> char {
-        let og_val = self.content[point.y as usize][point.x as usize];
-
+    fn replace_at_point(&mut self, point: &Point) {
         self.content[point.y as usize][point.x as usize] = '.';
-
-        og_val
     }
 
-    fn val_at_point(&self, point: &Point) -> &char {
-        &self.content[point.y as usize][point.x as usize]
+    fn val_at_point(&self, point: &Point) -> char {
+        self.content[point.y as usize][point.x as usize]
     }
 
     fn parse_content(content: &str) -> Vec<Vec<char>> {
