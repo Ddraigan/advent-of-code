@@ -89,11 +89,7 @@ impl Grid {
     }
 
     fn parse_content(content: &str) -> Vec<Vec<char>> {
-        content
-            .lines()
-            .into_iter()
-            .map(|line| line.chars().collect())
-            .collect()
+        content.lines().map(|line| line.chars().collect()).collect()
     }
 }
 
