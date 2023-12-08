@@ -1,22 +1,26 @@
+use std::ops::{Deref, DerefMut};
+
 fn main() {
     let lines = lines_from_file("src/input.txt").unwrap();
 
-    let cards: Vec<Card> = lines
+    let cards: Deck = lines
         .iter()
-        .map(|line| line.as_str().try_into().unwrap())
+        .map(|line| Card::try_from(line.as_str()).unwrap())
         .collect();
 
-    let mut total_points = vec![];
+    let part_one: usize = cards.iter().map(|card| card.match_count_doubled()).sum();
+    println!("{:?}", part_one);
 
-    for card in cards.iter() {
-        total_points.push(card.matches());
-        println!("{:?}", card.matches());
-    }
-
-    println!("{:?}", total_points.iter().sum::<usize>())
+    let x: Vec<(_, _)> = cards
+        .iter()
+        .enumerate()
+        .map(|(i, card)| (i + 1, card.matches()))
+        .collect();
+    println!("{:?}", x);
 }
 
-#[derive(Debug)]
+struct Deck(Vec<Card>);
+
 struct Card {
     id: u8,
     winning_numbers: Vec<u32>,
@@ -24,20 +28,14 @@ struct Card {
 }
 
 impl Card {
-    fn matches_iter_style(&self) -> usize {
+    fn matches(&self) -> u8 {
         self.card_numbers
             .iter()
             .filter(|card_number| self.winning_numbers.contains(card_number))
-            .fold(0, |match_count, _| {
-                if match_count != 0 {
-                    match_count * 2
-                } else {
-                    match_count + 1
-                }
-            })
+            .fold(0, |match_count, _| match_count + 1)
     }
 
-    fn matches(&self) -> usize {
+    fn match_count_doubled(&self) -> usize {
         let mut match_count = 0;
 
         for card_number in &self.card_numbers {
@@ -55,6 +53,19 @@ impl Card {
         }
 
         match_count
+    }
+
+    fn match_count_doubled_iter_style(&self) -> usize {
+        self.card_numbers
+            .iter()
+            .filter(|card_number| self.winning_numbers.contains(card_number))
+            .fold(0, |match_count, _| {
+                if match_count != 0 {
+                    match_count * 2
+                } else {
+                    match_count + 1
+                }
+            })
     }
 }
 
@@ -94,6 +105,34 @@ impl TryFrom<&str> for Card {
     }
 }
 
+impl<A> FromIterator<A> for Deck {
+    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
+        todo!()
+    }
+}
+
+impl IntoIterator for Deck {
+    type Item = Card;
+    type IntoIter = <Vec<Card> as IntoIterator>::IntoIter; // so that you don't have to write std::vec::IntoIter, which nobody remembers anyway
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.into_iter()
+    }
+}
+
+impl Deref for Deck {
+    type Target = [Card];
+
+    fn deref(&self) -> &Self::Target {
+        &self[..]
+    }
+}
+impl DerefMut for Deck {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self[..]
+    }
+}
+
 fn lines_from_file(path: &str) -> std::io::Result<Vec<String>> {
     let file = std::fs::File::open(path)?;
     let buf = std::io::BufReader::new(file);
@@ -109,8 +148,11 @@ fn part_one_test() {
         .map(|line| line.as_str().try_into().unwrap())
         .collect();
 
-    let total_points: usize = cards.iter().map(|card| card.matches()).sum();
-    let total_points_iter_style: usize = cards.iter().map(|card| card.matches_iter_style()).sum();
+    let total_points: usize = cards.iter().map(|card| card.match_count_doubled()).sum();
+    let total_points_iter_style: usize = cards
+        .iter()
+        .map(|card| card.match_count_doubled_iter_style())
+        .sum();
 
     assert_eq!(21105, total_points);
     assert_eq!(21105, total_points_iter_style);
