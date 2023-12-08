@@ -3,10 +3,17 @@ fn main() {
 
     let cards: Vec<Card> = lines
         .iter()
-        .map(|line| Card::try_from(line.as_str()).unwrap())
+        .map(|line| line.as_str().try_into().unwrap())
         .collect();
 
-    println!("{cards:?}")
+    let mut total_points = vec![];
+
+    for card in cards.iter() {
+        total_points.push(card.matches());
+        println!("{:?}", card.matches());
+    }
+
+    println!("{:?}", total_points.iter().sum::<usize>())
 }
 
 #[derive(Debug)]
@@ -16,7 +23,46 @@ struct Card {
     card_numbers: Vec<u32>,
 }
 
-impl Card {}
+impl Card {
+    fn matches_iter_style(&self) -> usize {
+        self.card_numbers
+            .iter()
+            .filter(|card_number| self.winning_numbers.contains(card_number))
+            .fold(0, |match_count, _| {
+                if match_count != 0 {
+                    match_count * 2
+                } else {
+                    match_count + 1
+                }
+            })
+    }
+
+    fn matches(&self) -> usize {
+        let mut match_count = 0;
+
+        for card_number in &self.card_numbers {
+            if self
+                .winning_numbers
+                .iter()
+                .any(|winning_number| card_number == winning_number)
+            {
+                match_count = if match_count != 0 {
+                    match_count * 2
+                } else {
+                    match_count + 1
+                };
+            }
+        }
+
+        match_count
+    }
+}
+
+// self.card_numbers.iter().filter(|card_number| {
+//     self.winning_numbers
+//         .iter()
+//         .any(|winning_number| *card_number == winning_number)
+// })
 
 impl TryFrom<&str> for Card {
     type Error = ();
@@ -52,4 +98,20 @@ fn lines_from_file(path: &str) -> std::io::Result<Vec<String>> {
     let file = std::fs::File::open(path)?;
     let buf = std::io::BufReader::new(file);
     std::io::BufRead::lines(buf).collect()
+}
+
+#[test]
+fn part_one_test() {
+    let lines = lines_from_file("src/input.txt").unwrap();
+
+    let cards: Vec<Card> = lines
+        .iter()
+        .map(|line| line.as_str().try_into().unwrap())
+        .collect();
+
+    let total_points: usize = cards.iter().map(|card| card.matches()).sum();
+    let total_points_iter_style: usize = cards.iter().map(|card| card.matches_iter_style()).sum();
+
+    assert_eq!(21105, total_points);
+    assert_eq!(21105, total_points_iter_style);
 }
