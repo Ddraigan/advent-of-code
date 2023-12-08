@@ -21,6 +21,16 @@ fn main() {
 
 struct Deck(Vec<Card>);
 
+impl Deck {
+    fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    fn add(&mut self, elem: Card) {
+        self.0.push(elem);
+    }
+}
+
 struct Card {
     id: u8,
     winning_numbers: Vec<u32>,
@@ -105,9 +115,15 @@ impl TryFrom<&str> for Card {
     }
 }
 
-impl<A> FromIterator<A> for Deck {
-    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
-        todo!()
+impl FromIterator<Card> for Deck {
+    fn from_iter<T: IntoIterator<Item = Card>>(iter: T) -> Self {
+        let mut deck = Deck::new();
+
+        for item in iter {
+            deck.add(item)
+        }
+
+        deck
     }
 }
 
@@ -116,7 +132,7 @@ impl IntoIterator for Deck {
     type IntoIter = <Vec<Card> as IntoIterator>::IntoIter; // so that you don't have to write std::vec::IntoIter, which nobody remembers anyway
 
     fn into_iter(self) -> Self::IntoIter {
-        self.into_iter()
+        self.0.into_iter()
     }
 }
 
@@ -124,12 +140,12 @@ impl Deref for Deck {
     type Target = [Card];
 
     fn deref(&self) -> &Self::Target {
-        &self[..]
+        &self.0
     }
 }
 impl DerefMut for Deck {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self[..]
+        &mut self.0
     }
 }
 
