@@ -1,10 +1,12 @@
-use std::{fs, path::Path};
+use std::{fs, path::Path, vec};
 
 fn main() {
     let lines = file_to_string("src/input.txt");
     let mut grid = Grid::new(&lines);
-    let part_one = grid.sum_numbers_around_symbols();
-    println!("{part_one}");
+    // let part_one = grid.sum_numbers_around_symbols();
+    let part_two = grid.product_numbers_around_asterisks();
+    // println!("{part_one}");
+    println!("{part_two}");
 }
 
 #[derive(Debug)]
@@ -17,6 +19,42 @@ impl Grid {
         let content = Self::parse_content(content);
 
         Self { content }
+    }
+
+    fn product_numbers_around_asterisks(&mut self) -> usize {
+        let mut num_sets: Vec<Vec<usize>> = vec![];
+
+        for neighbours in self.number_neigbour_points_asterisk() {
+            let mut nums = vec![];
+            for neighbour in neighbours {
+                if !self.get(&neighbour).is_ascii_digit() {
+                    continue;
+                }
+
+                let (num_string_left, num_string_right) = self.numbers_around_point(&neighbour);
+
+                let num_string = format!(
+                    "{}{}{}",
+                    num_string_left.chars().rev().collect::<String>(),
+                    self.get(&neighbour),
+                    num_string_right
+                );
+
+                nums.push(num_string.parse::<usize>().unwrap())
+            }
+            num_sets.push(nums)
+        }
+
+        let mut products: Vec<usize> = vec![];
+
+        for nums in num_sets {
+            if nums.len() < 2 {
+                continue;
+            }
+            products.push(nums.iter().product())
+        }
+
+        products.iter().sum()
     }
 
     fn sum_numbers_around_symbols(&mut self) -> usize {
@@ -57,6 +95,23 @@ impl Grid {
         }
 
         (num_string_left, num_string_right)
+    }
+
+    fn number_neigbour_points_asterisk(&self) -> Vec<Vec<Point>> {
+        let mut points = vec![];
+        for (y, row) in self.content.iter().enumerate() {
+            for (x, cell) in row.iter().enumerate() {
+                if !cell.is_asterisk() {
+                    continue;
+                }
+
+                let neighbours = Point::new(x.try_into().unwrap(), y.try_into().unwrap())
+                    .neighbours()
+                    .to_vec();
+                points.push(neighbours)
+            }
+        }
+        points
     }
 
     fn number_neigbour_points(&self) -> Vec<Point> {
@@ -127,6 +182,7 @@ impl Point {
 
 trait Symbol {
     fn is_symbol(&self) -> bool;
+    fn is_asterisk(&self) -> bool;
 }
 
 impl Symbol for char {
@@ -135,6 +191,14 @@ impl Symbol for char {
             return true;
         } else {
             return false;
+        }
+    }
+
+    fn is_asterisk(&self) -> bool {
+        if (*self as u8) != 42 {
+            return false;
+        } else {
+            return true;
         }
     }
 }
