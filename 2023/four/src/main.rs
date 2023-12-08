@@ -11,12 +11,8 @@ fn main() {
     let part_one: usize = cards.iter().map(|card| card.match_count_doubled()).sum();
     println!("{:?}", part_one);
 
-    let x: Vec<(_, _)> = cards
-        .iter()
-        .enumerate()
-        .map(|(i, card)| (i + 1, card.matches()))
-        .collect();
-    println!("{:?}", x);
+    let part_two = cards.part_two();
+    println!("{:?}", part_two);
 }
 
 struct Deck(Vec<Card>);
@@ -29,6 +25,24 @@ impl Deck {
     fn add(&mut self, elem: Card) {
         self.0.push(elem);
     }
+
+    fn part_two(&self) -> usize {
+        let mut counts = vec![1; self.len()];
+
+        for (index, card) in self.iter().enumerate() {
+            let x = if card.matches() > self.len() - 1 {
+                self.len() - 1
+            } else {
+                card.matches() + index
+            };
+
+            for y in index + 1..x + 1 {
+                counts[y] += counts[index];
+            }
+        }
+
+        counts.iter().sum()
+    }
 }
 
 struct Card {
@@ -38,11 +52,11 @@ struct Card {
 }
 
 impl Card {
-    fn matches(&self) -> u8 {
+    fn matches(&self) -> usize {
         self.card_numbers
             .iter()
             .filter(|card_number| self.winning_numbers.contains(card_number))
-            .fold(0, |match_count, _| match_count + 1)
+            .count()
     }
 
     fn match_count_doubled(&self) -> usize {
@@ -78,12 +92,6 @@ impl Card {
             })
     }
 }
-
-// self.card_numbers.iter().filter(|card_number| {
-//     self.winning_numbers
-//         .iter()
-//         .any(|winning_number| *card_number == winning_number)
-// })
 
 impl TryFrom<&str> for Card {
     type Error = ();
