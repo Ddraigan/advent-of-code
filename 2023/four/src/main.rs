@@ -1,7 +1,10 @@
 fn main() {
     let lines = lines_from_file("src/input.txt").unwrap();
 
-    let cards: Vec<Card> = lines.iter().map(|line| Card::from(line.as_str())).collect();
+    let cards: Vec<Card> = lines
+        .iter()
+        .map(|line| Card::try_from(line.as_str()).unwrap())
+        .collect();
 
     println!("{cards:?}")
 }
@@ -15,33 +18,33 @@ struct Card {
 
 impl Card {}
 
-impl From<&str> for Card {
-    fn from(value: &str) -> Self {
-        let value = value.split(&[':', '|']).collect::<Vec<_>>();
+impl TryFrom<&str> for Card {
+    type Error = ();
 
-        let id = value[0].split_whitespace().collect::<Vec<&str>>()[1]
+    fn try_from(value: &str) -> Result<Self, ()> {
+        let mut parts = value.splitn(3, |c| c == ':' || c == '|');
+
+        let id = parts
+            .nth(0)
+            .and_then(|part| part.split_whitespace().nth(1))
+            .ok_or(())?
             .parse()
-            .unwrap();
+            .map_err(|_| ())?;
 
-        let winning_numbers = value[1]
-            .split_whitespace()
-            .collect::<Vec<&str>>()
-            .iter()
-            .map(|item| item.parse().unwrap())
-            .collect();
+        let parse_numbers = |s: &str| -> Result<Vec<u32>, ()> {
+            s.split_whitespace()
+                .map(|item| item.parse().map_err(|_| ()))
+                .collect()
+        };
 
-        let card_numbers = value[2]
-            .split_whitespace()
-            .collect::<Vec<&str>>()
-            .iter()
-            .map(|item| item.parse().unwrap())
-            .collect();
+        let winning_numbers = parse_numbers(parts.next().ok_or(())?)?;
+        let card_numbers = parse_numbers(parts.next().ok_or(())?)?;
 
-        Self {
+        Ok(Self {
             id,
             winning_numbers,
             card_numbers,
-        }
+        })
     }
 }
 
