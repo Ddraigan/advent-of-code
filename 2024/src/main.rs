@@ -2,34 +2,36 @@ fn main() {
     let input = lines_from_file("src/input.txt").expect("Useable input file");
     let mut answers = vec![];
 
-    let mut left_lists = vec![];
-    let mut right_lists = vec![];
+    let mut left_list = vec![];
+    let mut right_list = vec![];
 
 
     for line in input.iter() {
         let mut string_split = line.split_whitespace();
-        let mut a: Vec<usize> = string_split.next().unwrap().chars().map(|c| c.to_digit(10).unwrap() as usize).collect();
-        let mut b: Vec<usize> = string_split.next().unwrap().chars().map(|c| c.to_digit(10).unwrap() as usize).collect();
+        // let mut a: Vec<usize> = string_split.next().unwrap().chars().map(|c| c.to_digit(10).unwrap() as usize).collect();
+        // let mut b: Vec<usize> = string_split.next().unwrap().chars().map(|c| c.to_digit(10).unwrap() as usize).collect();
+        // a.sort_unstable();
+        // b.sort_unstable();
 
-        a.sort_unstable();
-        b.sort_unstable();
+        let a = string_split.next().unwrap().parse::<usize>().unwrap();
+        let b = string_split.next().unwrap().parse::<usize>().unwrap();
 
-        left_lists.push(a);
-        right_lists.push(b);
+        left_list.push(a);
+        right_list.push(b);
     }
 
+    assert_eq!(left_list.len(), right_list.len());
 
-    assert_eq!(left_lists.len(), right_lists.len());
+    left_list.sort_unstable();
+    right_list.sort_unstable();
 
-    for (i, list) in left_lists.iter().enumerate() {
-        for (ii, lnum) in list.iter().enumerate() {
-            let rnum = right_lists[i][ii];
+    for (i, lnum) in left_list.iter().enumerate() {
+            let rnum = right_list[i];
 
             let a = std::cmp::min(*lnum, rnum);
             let b = std::cmp::max(*lnum, rnum);
 
             answers.push(b-a);
-        }
     }
 
     println!("{:?}", answers);
