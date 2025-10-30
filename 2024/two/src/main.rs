@@ -66,34 +66,43 @@ fn check_diff(a: i32,b: i32) -> Safety
 fn check_safety(slice: &[i32]) -> Safety
 {
     let mut slice_peak = slice.into_iter().peekable();
-    let mut state = Level::Unset;
+    let mut direction = Level::Unset;
+    let mut unsafe_counter = 0;
 
     for _ in 0..slice.len() {
         let num = slice_peak.next();
-        let next_num = slice_peak.peek();
+        let next_num = slice_peak.peek().copied();
+        let mut next_num_mut = slice_peak.peek_mut();
 
-        if next_num.is_none() {
-            return Safety::Safe;
+        if next_num_mut.is_none() {
+            break;
+        }
+
+        if unsafe_counter > 1 {
+            return Safety::Unsafe
         }
 
         let a = *num.unwrap();
-        let b = **next_num.unwrap();
+        let b = next_num.cloned().unwrap();
 
         if check_diff(a,b) == Safety::Unsafe {
-            return Safety::Unsafe;
+            next_num_mut.take();
+            unsafe_counter += 1;
         }
 
-        let current_state = check_up_or_down(a, b);
+        let current_direction = check_up_or_down(a, b);
 
-        if state == Level::Unset {
-        state = *&current_state
-        } else if current_state != state {
-            return Safety::Unsafe
+        if direction == Level::Unset {
+            direction = current_direction
+        }
+
+        if current_direction != direction {
+            next_num_mut.take();
+            unsafe_counter += 1;
         }
     };
 
-    return Safety::Safe
-
+    return Safety::Safe;
 }
 
 fn check_up_or_down(a: i32, b: i32) -> Level
