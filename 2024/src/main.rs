@@ -8,10 +8,6 @@ fn main() {
 
     for line in input.iter() {
         let mut string_split = line.split_whitespace();
-        // let mut a: Vec<usize> = string_split.next().unwrap().chars().map(|c| c.to_digit(10).unwrap() as usize).collect();
-        // let mut b: Vec<usize> = string_split.next().unwrap().chars().map(|c| c.to_digit(10).unwrap() as usize).collect();
-        // a.sort_unstable();
-        // b.sort_unstable();
 
         let a = string_split.next().unwrap().parse::<usize>().unwrap();
         let b = string_split.next().unwrap().parse::<usize>().unwrap();
@@ -35,7 +31,23 @@ fn main() {
     }
 
     println!("{:?}", answers);
-    println!("{}", answers.iter().sum::<usize>())
+    println!("{}", answers.iter().sum::<usize>());
+
+    let mut similarity = vec![];
+
+    for lnum in &left_list {
+        let mut count = 0;
+
+        for rnum in &right_list {
+            if lnum == rnum {
+                count += 1
+            }
+        }
+
+        similarity.push(count * lnum)
+    }
+
+    println!("{}", similarity.iter().sum::<usize>())
 }
 
 fn lines_from_file(filename: impl AsRef<std::path::Path>) -> std::io::Result<Vec<String>> {
