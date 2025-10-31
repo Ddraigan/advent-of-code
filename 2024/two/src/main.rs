@@ -5,7 +5,9 @@ fn main() {
     let ln4 = vec![1,3,2,4,5];
     let ln5 = vec![8,6,4,4,1];
     let ln6 = vec![1,3,6,7,9];
-    let example = vec![ln1, ln2, ln3, ln4, ln5, ln6];
+    let ln7 = vec![
+9,12,14,16,17,18,15];
+    let example = vec![ln1, ln2, ln3, ln4, ln5, ln6, ln7];
     let lines = lines_from_file("src/input.txt").expect("Useable File");
 
     let mut example_count = 0;
